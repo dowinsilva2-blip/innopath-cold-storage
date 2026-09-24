@@ -128,6 +128,26 @@
         </div>
       </div>
 
+      <!-- Remote Power ON/OFF Switch (Phone Control) -->
+      <div class="cooling-control-card" id="power-control-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:24px;" id="power-switch-icon">⚡</span>
+            <div>
+              <div style="font-weight:800; font-size:13px;" id="txt-power-control-title">रिमोट पावर नियंत्रण (Remote Power)</div>
+              <div style="font-size:11px; color:#64748b;" id="txt-power-control-sub">फोन से सीधे शीतलन चालू / बंद करें</div>
+            </div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="coolingPowerToggle" checked onchange="handlePowerToggle(this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div id="power-status-note" style="margin-top:6px; font-size:11px; font-weight:700; color:#15803d; display:flex; align-items:center; gap:4px;">
+          <span>🟢 कूलिंग सिस्टम सक्रिय है (Cooling ON)</span>
+        </div>
+      </div>
+
       <!-- Cooling Status Summary -->
       <div class="cooling-banner" onclick="openSubPage('cooling')">
         <div class="cooling-banner-head">
@@ -465,6 +485,30 @@
             <div class="metric-target" id="txt-bat-cycle-sub">रात के बैकअप हेतु पर्याप्त</div>
           </div>
         </div>
+
+        <!-- Date History Table Container -->
+        <div class="history-table-container">
+          <div style="padding:10px 12px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+            <b style="font-size:13px;" id="txt-date-history-title">📅 दैनिक तापमान व स्थिति इतिहास (Date Log)</b>
+            <span style="font-size:11px; color:#15803d; font-weight:700;" id="date-history-unit-badge">INNO-001</span>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th id="th-date">तारीख (Date)</th>
+                  <th id="th-avg-temp">औसत तापमान</th>
+                  <th id="th-rh">नमी</th>
+                  <th id="th-battery">बैटरी</th>
+                  <th id="th-status">स्थिति</th>
+                </tr>
+              </thead>
+              <tbody id="date-history-tbody">
+                <!-- Populated dynamically by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       <!-- SUB-PAGE: System Health (8 Components) -->
@@ -505,6 +549,23 @@
       <div class="modal-actions">
         <button class="btn-secondary" id="btn-crop-cancel" onclick="closeCropModal()">रद्द करें</button>
         <button class="btn-primary" id="btn-crop-confirm" onclick="confirmCropSelection()">हाँ, शुरू करें</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= POWER SHUTOFF CONFIRMATION MODAL ================= -->
+  <div id="powerConfirmModal" class="modal-overlay" onclick="cancelPowerToggle()">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title" id="txt-modal-power-title" style="color:#b91c1c;">⚠️ शीतलन बंद करने की पुष्टि</div>
+        <span style="font-size:22px; cursor:pointer;" onclick="cancelPowerToggle()">✕</span>
+      </div>
+      <div class="modal-body" id="txt-modal-power-desc">
+        क्या आप वाकई इस यूनिट की कूलिंग बंद करना चाहते हैं? तापमान बढ़ने से फल व सब्जियाँ खराब होने का जोखिम हो सकता है।
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-keep-power-on" onclick="cancelPowerToggle()">चालू रखें</button>
+        <button class="btn-primary" id="btn-confirm-power-off" style="background:#dc2626;" onclick="confirmPowerOff()">हाँ, बंद करें</button>
       </div>
     </div>
   </div>

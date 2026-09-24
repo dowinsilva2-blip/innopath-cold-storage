@@ -444,6 +444,44 @@ function updateActiveUnitDashboard(unit) {
   }
 
   // Re-render sub-pages to match unit
+  
+  // Sync Remote Power Toggle
+  const isPowerOn = unit.isPoweredOn !== false;
+  const powerToggle = document.getElementById('coolingPowerToggle');
+  const powerCard = document.getElementById('power-control-card');
+  const powerNote = document.getElementById('power-status-note');
+
+  if (powerToggle) powerToggle.checked = isPowerOn;
+  if (powerCard) {
+    if (isPowerOn) powerCard.classList.remove('power-off');
+    else powerCard.classList.add('power-off');
+  }
+  if (powerNote) {
+    powerNote.style.color = isPowerOn ? '#15803d' : '#b45309';
+    powerNote.innerHTML = isPowerOn
+      ? (t.powerOnText || '🟢 कूलिंग सिस्टम सक्रिय है (Cooling ON)')
+      : (t.powerOffText || '⚪ कूलिंग सिस्टम बंद है (Cooling OFF)');
+  }
+
+  // If power is turned off, override hero card and fans
+  if (!isPowerOn) {
+    const heroBox = document.getElementById('hero-box');
+    const heroIcon = document.getElementById('hero-icon');
+    const heroTitle = document.getElementById('txt-hero-title');
+    const heroSub = document.getElementById('txt-hero-sub');
+    if (heroBox && heroIcon && heroTitle && heroSub) {
+      heroBox.className = 'hero-status-box';
+      heroIcon.textContent = '⚪';
+      heroTitle.innerHTML = currentLang === 'en' ? 'Cooling System Paused (OFF)' : '⚪ कूलिंग बंद है (Cooling Paused/OFF)';
+      heroSub.innerHTML = currentLang === 'en' ? 'Peltier and fans are paused. Turn ON to keep produce safe.' : 'पेल्टियर और पंखे बंद हैं। सब्जियाँ सुरक्षित रखने हेतु फोन से चालू करें।';
+    }
+    safeSetText('val-fan-in', t.statusOff || 'बंद');
+    safeSetText('val-fan-out', t.statusOff || 'बंद');
+    safeSetText('txt-cooling-mode', currentLang === 'en' ? 'PAUSED / OFF' : 'बंद / OFF');
+  }
+
+  renderDateHistoryTable(unit);
+
   updateCropsTabUI(unit);
   renderSubPages(t);
 }
@@ -990,6 +1028,21 @@ function applyLanguage(lang) {
   safeSetText('txt-btn-sim-qr', t.btnSimScan);
   safeSetText('btn-cancel-add-unit', t.btnCancel);
   safeSetText('btn-submit-add-unit', t.btnAddConfirm);
+
+  // Remote Power & Date History Translations
+  safeSetText('txt-power-control-title', t.powerControlTitle);
+  safeSetText('txt-power-control-sub', t.powerControlSub);
+  safeSetText('txt-date-history-title', t.dateHistoryTitle);
+  safeSetText('th-date', t.thDate);
+  safeSetText('th-avg-temp', t.thAvgTemp);
+  safeSetText('th-rh', t.thRh);
+  safeSetText('th-battery', t.thBattery);
+  safeSetText('th-status', t.thStatus);
+  safeSetText('txt-modal-power-title', t.powerConfirmTitle);
+  safeSetText('txt-modal-power-desc', t.powerConfirmDesc);
+  safeSetText('btn-keep-power-on', t.btnPowerKeepOn);
+  safeSetText('btn-confirm-power-off', t.btnPowerConfirm);
+
 
   // Re-render UI
   const unit = getActiveUnit();
@@ -1643,4 +1696,93 @@ function openQrModal() {
 function closeQrModal() {
   const modal = document.getElementById('qrModal');
   if (modal) modal.classList.remove('active');
+}
+
+// 20. Remote Power Switch Control (Phone Control)
+function handlePowerToggle(isOn) {
+  const unit = getActiveUnit();
+  if (!isOn) {
+    // Show confirmation modal before turning OFF cooling
+    const modal = document.getElementById('powerConfirmModal');
+    if (modal) modal.classList.add('active');
+  } else {
+    // Turn cooling back ON immediately
+    setUnitCoolingPower(unit, true);
+  }
+}
+
+function cancelPowerToggle() {
+  const modal = document.getElementById('powerConfirmModal');
+  if (modal) modal.classList.remove('active');
+  const toggle = document.getElementById('coolingPowerToggle');
+  if (toggle) toggle.checked = true;
+}
+
+function confirmPowerOff() {
+  const modal = document.getElementById('powerConfirmModal');
+  if (modal) modal.classList.remove('active');
+  const unit = getActiveUnit();
+  setUnitCoolingPower(unit, false);
+}
+
+function setUnitCoolingPower(unit, isPowered) {
+  unit.isPoweredOn = isPowered;
+  const toggle = document.getElementById('coolingPowerToggle');
+  if (toggle) toggle.checked = isPowered;
+
+  const card = document.getElementById('power-control-card');
+  const note = document.getElementById('power-status-note');
+  const t = getT();
+
+  if (isPowered) {
+    if (card) card.classList.remove('power-off');
+    if (note) {
+      note.style.color = '#15803d';
+      note.innerHTML = t.powerOnText || '🟢 कूलिंग सिस्टम सक्रिय है (Cooling ON)';
+    }
+  } else {
+    if (card) card.classList.add('power-off');
+    if (note) {
+      note.style.color = '#b45309';
+      note.innerHTML = t.powerOffText || '⚪ कूलिंग सिस्टम बंद है (Cooling OFF)';
+    }
+  }
+
+  // Update in array & localStorage
+  const idx = storageUnits.findIndex(u => u.id === unit.id);
+  if (idx !== -1) storageUnits[idx] = unit;
+  localStorage.setItem('innopath_units', JSON.stringify(storageUnits));
+
+  updateActiveUnitDashboard(unit);
+}
+
+// 21. Date History Table Generator
+function renderDateHistoryTable(unit) {
+  const tbody = document.getElementById('date-history-tbody');
+  const badge = document.getElementById('date-history-unit-badge');
+  if (!tbody) return;
+  if (!unit) unit = getActiveUnit();
+
+  if (badge) badge.textContent = unit.id;
+  const t = getT();
+
+  const historyData = [
+    { date: '25 Sep 2026', temp: unit.temp.toFixed(1) + '°C', rh: Math.round(unit.rh) + '%', bat: Math.round(unit.battery) + '%', status: '🟢 ' + (t.statusNormalCount || 'सामान्य') },
+    { date: '24 Sep 2026', temp: '12.0°C', rh: '81%', bat: '85%', status: '🟢 ' + (t.statusNormalCount || 'सामान्य') },
+    { date: '23 Sep 2026', temp: '11.6°C', rh: '83%', bat: '90%', status: '🟢 ' + (t.statusNormalCount || 'सामान्य') },
+    { date: '22 Sep 2026', temp: '12.3°C', rh: '79%', bat: '78%', status: '🟢 ' + (t.statusNormalCount || 'सामान्य') },
+    { date: '21 Sep 2026', temp: '13.8°C', rh: '84%', bat: '71%', status: '🟡 ' + (currentLang === 'en' ? 'Door Opened' : 'ढक्कन खुला') },
+    { date: '20 Sep 2026', temp: '11.9°C', rh: '82%', bat: '88%', status: '🟢 ' + (t.statusNormalCount || 'सामान्य') },
+    { date: '19 Sep 2026', temp: '12.1°C', rh: '80%', bat: '82%', status: '🟢 ' + (t.statusNormalCount || 'सामान्य') }
+  ];
+
+  tbody.innerHTML = historyData.map(row => `
+    <tr>
+      <td style="font-weight:700;">${row.date}</td>
+      <td style="color:#0284c7; font-weight:700;">${row.temp}</td>
+      <td style="color:#0d9488; font-weight:600;">${row.rh}</td>
+      <td style="color:#15803d; font-weight:600;">${row.bat}</td>
+      <td><span style="font-size:11px; font-weight:700;">${row.status}</span></td>
+    </tr>
+  `).join('');
 }
