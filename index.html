@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>INNOPATH - Smart Solar Mini Cold Storage</title>
+  <meta name="description" content="Farmer-Centric Smart Solar Mini Cold Storage Dashboard for North East Region">
+  <meta name="theme-color" content="#15803d">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="mobile-wrapper">
+
+  <!-- ================= TOP HEADER ================= -->
+  <header class="app-header">
+    <div class="header-top">
+      <div class="brand-area">
+        <span class="brand-logo">🌱</span>
+        <div>
+          <div class="brand-title">INNOPATH</div>
+          <div class="brand-subtitle" id="txt-subhead">स्मार्ट सोलर मिनी कोल्ड स्टोरेज</div>
+        </div>
+      </div>
+      <!-- Language Dropdown -->
+      <select id="langSelect" class="lang-selector" aria-label="Select Language">
+        <option value="hi" selected>हिन्दी ▼</option>
+        <option value="en">English ▼</option>
+        <option value="as">অসমীয়া ▼</option>
+        <option value="kha">Khasi ▼</option>
+        <option value="mzo">Mizo ▼</option>
+      </select>
+    </div>
+
+    <div class="header-meta">
+      <div class="status-badge" id="system-status-pill">
+        <span class="pulse-dot"></span>
+        <span id="txt-online-badge">🟢 ऑनलाइन (Online)</span>
+      </div>
+      <div class="active-unit-selector" id="btn-header-unit" onclick="openUnitSwitchModal()" title="यूनिट बदलें / Switch Box">
+        <span id="txt-active-unit-badge">📦 INNO-001 ▾</span>
+      </div>
+      <button class="phone-qr-btn" id="btn-open-phone" onclick="openQrModal()">📱 क्यूआर (QR)</button>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT VIEWS ================= -->
+  <main class="main-content">
+
+    <!-- ---------------- 1. HOME TAB (DEDICATED UNIT VIEW) ---------------- -->
+    <section id="view-home" class="tab-view active">
+      <!-- Active Box Strip with Quick Unit Switcher -->
+      <div class="active-box-strip">
+        <div>
+          <div class="active-box-id" id="home-box-id">
+            <span>📦</span> <span id="home-box-id-val">INNO-001</span>
+            <span class="unit-status-badge badge-normal" id="home-box-status-badge">🟢 सामान्य</span>
+          </div>
+          <div class="active-box-loc" id="home-box-farmer-loc">👤 रामेश्वर बोरो • रि-भोई संकलन केंद्र</div>
+        </div>
+        <button class="btn-switch-units" onclick="switchTab('units')" id="btn-switch-box-shortcut">📦 सभी बॉक्स देखें</button>
+      </div>
+
+      <!-- 3-Second Glance Hero Status Box -->
+      <div class="hero-status-box" id="hero-box">
+        <div class="hero-icon" id="hero-icon">🟢</div>
+        <div>
+          <div class="hero-title" id="txt-hero-title">भंडारण स्थिति: सामान्य</div>
+          <div class="hero-subtitle" id="txt-hero-sub">आपकी सब्जियाँ निर्धारित तापमान सीमा में हैं।</div>
+        </div>
+      </div>
+
+      <!-- Main 4 Metric Cards (2x2 Grid) -->
+      <div class="metrics-grid">
+        <!-- Temperature -->
+        <div class="metric-card temp-card" onclick="openSubPage('data')">
+          <div class="metric-header">
+            <span class="metric-icon">🌡️</span>
+            <span id="txt-temp-label">तापमान</span>
+          </div>
+          <div class="metric-value-wrap">
+            <span class="metric-value" id="val-temp">11.8</span>
+            <span class="metric-unit">°C</span>
+          </div>
+          <div class="metric-target" id="txt-temp-target">लक्ष्य: 10–13°C</div>
+        </div>
+
+        <!-- Humidity -->
+        <div class="metric-card rh-card" onclick="openSubPage('data')">
+          <div class="metric-header">
+            <span class="metric-icon">💧</span>
+            <span id="txt-rh-label">नमी</span>
+          </div>
+          <div class="metric-value-wrap">
+            <span class="metric-value" id="val-rh">82</span>
+            <span class="metric-unit">%</span>
+          </div>
+          <div class="metric-target" id="txt-rh-target">लक्ष्य: 70–90%</div>
+        </div>
+
+        <!-- Battery -->
+        <div class="metric-card battery-card" onclick="openSubPage('energy')">
+          <div class="metric-header">
+            <span class="metric-icon">🔋</span>
+            <span id="txt-bat-label">बैटरी</span>
+          </div>
+          <div class="metric-value-wrap">
+            <span class="metric-value" id="val-battery">76</span>
+            <span class="metric-unit">%</span>
+          </div>
+          <div class="metric-sub" id="txt-bat-sub">🟢 सामान्य (12.4V)</div>
+        </div>
+
+        <!-- Solar -->
+        <div class="metric-card solar-card" onclick="openSubPage('energy')">
+          <div class="metric-header">
+            <span class="metric-icon">☀️</span>
+            <span id="txt-solar-label">सोलर</span>
+          </div>
+          <div class="metric-value-wrap">
+            <span class="metric-value" id="val-solar">58</span>
+            <span class="metric-unit">W</span>
+          </div>
+          <div class="metric-sub" id="txt-solar-sub">🟢 चार्जिंग चालू</div>
+        </div>
+      </div>
+
+      <!-- Cooling Status Summary -->
+      <div class="cooling-banner" onclick="openSubPage('cooling')">
+        <div class="cooling-banner-head">
+          <span style="font-weight:700; font-size:14px;" id="txt-cooling-title">❄️ कूलिंग स्थिति</span>
+          <span class="cooling-tag" id="txt-cooling-mode">स्टेज-1 (ऊर्जा-दक्ष)</span>
+        </div>
+        <div class="fan-indicators">
+          <div class="fan-pill"><span>🌬️ अंदर का पंखा:</span> <b id="val-fan-in" style="color:#15803d;">चालू</b></div>
+          <div class="fan-pill"><span>🌬️ बाहरी पंखा:</span> <b id="val-fan-out" style="color:#15803d;">चालू</b></div>
+        </div>
+      </div>
+
+      <!-- Active Crop Banner -->
+      <div class="active-crop-banner" onclick="switchTab('crops')">
+        <div class="active-crop-info">
+          <span class="active-crop-icon" id="hero-crop-icon">🍅</span>
+          <div>
+            <div class="active-crop-name" id="hero-crop-name">सक्रिय फसल: टमाटर</div>
+            <div class="active-crop-status" id="hero-crop-status">स्थिति: 🟢 सुरक्षित भंडारण में</div>
+          </div>
+        </div>
+        <button class="crop-change-btn" id="btn-crop-change">बदलें</button>
+      </div>
+
+      <!-- Quick System Health Strip -->
+      <div class="chart-card" onclick="openSubPage('health')" style="cursor:pointer; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span style="font-weight:700; font-size:13px;" id="txt-quick-health-title">⚙️ सिस्टम स्वास्थ्य (8 बिंदु जाँच)</span>
+          <span style="font-size:11px; font-weight:700; color:#15803d;" id="txt-quick-health-link">विस्तार देखें ›</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:#475569;">
+          <span>🌡️ SHT31: <b style="color:#15803d;" id="qh-temp">सामान्य</b></span>
+          <span>❄️ पेल्टियर: <b style="color:#15803d;" id="qh-peltier">सक्रिय</b></span>
+          <span>🔋 बैटरी LFP: <b style="color:#15803d;" id="qh-battery">स्वस्थ</b></span>
+        </div>
+      </div>
+
+      <!-- Footer Sync Note -->
+      <div class="sync-footer">
+        <span>🕒</span>
+        <span id="txt-last-update">अंतिम अपडेट: आज 12:30 PM</span>
+      </div>
+    </section>
+
+    <!-- ---------------- 2. MY UNITS TAB (COOPERATIVE OVERVIEW) ---------------- -->
+    <section id="view-units" class="tab-view">
+      <div class="section-header">
+        <div class="section-title" id="txt-units-title">📦 मेरे कोल्ड स्टोरेज यूनिट्स (My Units)</div>
+        <div class="section-desc" id="txt-units-desc">सभी 10 कोल्ड स्टोरेज बॉक्स की स्थिति एक नज़र में</div>
+      </div>
+
+      <!-- Cooperative Multi-Box Overview Card -->
+      <div class="coop-overview-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <b style="font-size:13px;" id="txt-coop-title">भंडारण सिंहावलोकन (Storage Overview)</b>
+          <span style="font-size:11px; color:#64748b; font-weight:600;" id="txt-coop-fpo">रि-भोई कोऑपरेटिव क्लस्टर</span>
+        </div>
+        <div class="coop-grid">
+          <div class="coop-stat total">
+            <div class="coop-num" id="coop-total-count">10</div>
+            <div class="coop-label" id="txt-total-units">कुल बॉक्स</div>
+          </div>
+          <div class="coop-stat normal">
+            <div class="coop-num" id="coop-normal-count">7</div>
+            <div class="coop-label" id="txt-normal-units">सामान्य</div>
+          </div>
+          <div class="coop-stat warning">
+            <div class="coop-num" id="coop-warning-count">2</div>
+            <div class="coop-label" id="txt-warning-units">ध्यान दें</div>
+          </div>
+          <div class="coop-stat offline">
+            <div class="coop-num" id="coop-offline-count">1</div>
+            <div class="coop-label" id="txt-offline-units">ऑफलाइन</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search & Add Unit Toolbar -->
+      <div class="units-toolbar">
+        <div class="search-box">
+          <input type="text" id="unitSearchInput" class="search-input" placeholder="🔍 यूनिट आईडी (जैसे INNO-002), किसान या गाँव खोजें..." oninput="handleUnitSearch(this.value)">
+        </div>
+        <button class="btn-add-unit" id="btn-add-unit-trigger" onclick="openAddUnitModal()">+ नई यूनिट जोड़ें</button>
+      </div>
+
+      <!-- Storage Units Dynamic Cards List -->
+      <div id="units-list-container">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- ---------------- 3. CROPS TAB (PROFILE MANAGEMENT) ---------------- -->
+    <section id="view-crops" class="tab-view">
+      <div class="section-header">
+        <div class="section-title" id="txt-crops-title">🌾 फसल प्रबंधन (Crops Profile)</div>
+        <div class="section-desc" id="txt-crops-desc">प्रत्येक बॉक्स के लिए लक्षित तापमान व आर्द्रता प्रोफाइल</div>
+      </div>
+
+      <!-- Active Box Notice -->
+      <div class="chart-summary-box" style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <span id="txt-crop-active-label">📦 वर्तमान में चुनी गई यूनिट:</span>
+          <b id="crop-unit-name" style="color:#15803d; font-size:14px;">INNO-001</b>
+        </div>
+        <button class="btn-switch-units" onclick="switchTab('units')" style="padding:3px 8px; font-size:11px;">यूनिट बदलें</button>
+      </div>
+
+      <!-- Crop 1: Tomato (Validated) -->
+      <div class="crop-card active-selected" id="crop-card-tomato">
+        <div class="crop-left">
+          <span class="crop-emoji">🍅</span>
+          <div>
+            <div class="crop-title" id="txt-crop-tomato">टमाटर (Tomato)</div>
+            <span class="crop-status-pill pill-green" id="txt-tomato-status">🟢 जाँचा गया (Validated)</span>
+            <div class="crop-specs" id="txt-tomato-specs">🌡️ 10–13°C | 💧 70–90% नमी</div>
+          </div>
+        </div>
+        <button class="crop-action-btn" id="btn-crop-action-tomato" onclick="openCropModal('tomato')">सक्रिय</button>
+      </div>
+
+      <!-- Crop 2: Chilli (Validation Required) -->
+      <div class="crop-card" id="crop-card-chilli">
+        <div class="crop-left">
+          <span class="crop-emoji">🌶️</span>
+          <div>
+            <div class="crop-title" id="txt-crop-chilli">हरी मिर्च (Chilli)</div>
+            <span class="crop-status-pill pill-amber" id="txt-chilli-status">🟡 प्रोफाइल तैयार / सत्यापन जारी</span>
+            <div class="crop-specs" id="txt-chilli-specs">🌡️ 8–10°C | 💧 85–95% नमी</div>
+          </div>
+        </div>
+        <button class="crop-action-btn" id="btn-crop-action-chilli" onclick="openCropModal('chilli')">चुनें</button>
+      </div>
+
+      <!-- Crop 3: Beans (Validation Required) -->
+      <div class="crop-card" id="crop-card-beans">
+        <div class="crop-left">
+          <span class="crop-emoji">🫘</span>
+          <div>
+            <div class="crop-title" id="txt-crop-beans">फ्रेंच बीन्स (Beans)</div>
+            <span class="crop-status-pill pill-amber" id="txt-beans-status">🟡 प्रोफाइल तैयार / सत्यापन जारी</span>
+            <div class="crop-specs" id="txt-beans-specs">🌡️ 7–10°C | 💧 85–90% नमी</div>
+          </div>
+        </div>
+        <button class="crop-action-btn" id="btn-crop-action-beans" onclick="openCropModal('beans')">चुनें</button>
+      </div>
+
+      <!-- Crop 4: Cabbage / Leafy (Unsupported) -->
+      <div class="crop-card unsupported" id="crop-card-cabbage">
+        <div class="crop-left">
+          <span class="crop-emoji">🥬</span>
+          <div>
+            <div class="crop-title" id="txt-crop-cabbage">पत्तागोभी / पत्तेदार सब्जियाँ</div>
+            <span class="crop-status-pill pill-gray" id="txt-cabbage-status">⚪ वर्तमान सिस्टम में समर्थित नहीं</span>
+            <div class="crop-specs" id="txt-cabbage-specs">आवश्यकता: 0–2°C (पेल्टियर क्षमता से बाहर)</div>
+          </div>
+        </div>
+        <button class="crop-action-btn" disabled id="btn-crop-action-cabbage">असमर्थित</button>
+      </div>
+
+      <!-- Scientific Honesty Disclaimer Card -->
+      <div class="chart-summary-box" style="margin-top:14px; background:#eff6ff; border-color:#bfdbfe; color:#1e40af;">
+        ℹ️ <b>ईमानदार इंजीनियरिंग दृष्टिकोण:</b> पेल्टियर थर्मोइलेक्ट्रिक कूलिंग 15–18°C का तापमान अंतर (ΔT) प्रदान करती है। इसलिए 0–4°C की सब्जियां (जैसे पत्तेदार साग) वर्तमान प्रोटोटाइप में असमर्थित हैं।
+      </div>
+    </section>
+
+    <!-- ---------------- 4. ALERTS TAB (CENTRAL ALERTS MANAGEMENT) ---------------- -->
+    <section id="view-alerts" class="tab-view">
+      <div class="section-header">
+        <div class="section-title" id="txt-alerts-title">🔔 केंद्रीय अलर्ट प्रबंधन (Alerts)</div>
+        <div class="section-desc" id="txt-alerts-desc">सभी 10 कोल्ड स्टोरेज बॉक्स की चेतावनियाँ</div>
+      </div>
+
+      <!-- Simulation Buttons for College Demo / Presentation -->
+      <div class="sim-bar">
+        <div class="sim-label" id="txt-sim-title">🎯 सिमुलेशन टेस्ट (Demo Mode)</div>
+        <div class="sim-buttons">
+          <button class="sim-btn" id="btn-sim-normal" onclick="triggerAlertSim('normal')">🟢 सब सामान्य</button>
+          <button class="sim-btn" id="btn-sim-high-temp" onclick="triggerAlertSim('high_temp')">🔴 उच्च तापमान</button>
+          <button class="sim-btn" id="btn-sim-low-battery" onclick="triggerAlertSim('low_battery')">🟡 कम बैटरी</button>
+          <button class="sim-btn" id="btn-sim-fan-fault" onclick="triggerAlertSim('fan_fault')">🔴 पंखा रुकावट</button>
+          <button class="sim-btn" id="btn-sim-no-net" onclick="triggerAlertSim('no_net')">🟡 नो इंटरनेट</button>
+        </div>
+      </div>
+
+      <div style="font-size:12px; color:#64748b; margin-bottom:10px;" id="txt-tap-alert-tip">
+        💡 किसी भी चेतावनी पर टैप करके उस बॉक्स का डैशबोर्ड सीधे खोलें
+      </div>
+
+      <!-- Central Multi-Box Alert Container -->
+      <div id="central-alerts-container">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- ---------------- 5. MORE TAB (SUBSYSTEMS, HEALTH, CONNECTIVITY) ---------------- -->
+    <section id="view-more" class="tab-view">
+
+      <!-- Main More Menu List -->
+      <div id="more-menu-main">
+        <div class="section-header">
+          <div class="section-title" id="txt-more-title">⚙️ अधिक विकल्प (More)</div>
+          <div class="section-desc" id="txt-more-desc">ऊर्जा प्रवाह, स्वास्थ्य, कनेक्टिविटी और सहायता</div>
+        </div>
+
+        <div class="more-menu-list">
+          <!-- Energy Flow -->
+          <div class="more-item" onclick="openSubPage('energy')">
+            <div class="more-left">
+              <span class="more-icon">🔋</span>
+              <span class="more-title" id="txt-menu-energy">सोलर एवं बैटरी (Energy Flow)</span>
+            </div>
+            <span class="more-arrow">›</span>
+          </div>
+
+          <!-- Data & Charts -->
+          <div class="more-item" onclick="openSubPage('data')">
+            <div class="more-left">
+              <span class="more-icon">📊</span>
+              <span class="more-title" id="txt-menu-data">डेटा एवं ग्राफ़ (Historical Trends)</span>
+            </div>
+            <span class="more-arrow">›</span>
+          </div>
+
+          <!-- System Health Checklist (8 Components) -->
+          <div class="more-item" onclick="openSubPage('health')">
+            <div class="more-left">
+              <span class="more-icon">⚙️</span>
+              <span class="more-title" id="txt-menu-health">सिस्टम स्वास्थ्य (System Health)</span>
+            </div>
+            <span class="more-arrow">›</span>
+          </div>
+
+          <!-- Maintenance Checklist & Service Log -->
+          <div class="more-item" onclick="openSubPage('maintenance')">
+            <div class="more-left">
+              <span class="more-icon">🛠️</span>
+              <span class="more-title" id="txt-menu-maintenance">रखरखाव चेकलिस्ट एवं इतिहास</span>
+            </div>
+            <span class="more-arrow">›</span>
+          </div>
+
+          <!-- Connectivity Modes & Offline Reassurance -->
+          <div class="more-item" onclick="openSubPage('connectivity')">
+            <div class="more-left">
+              <span class="more-icon">📡</span>
+              <span class="more-title" id="txt-menu-connectivity">कनेक्टिविटी मोड (BLE / Wi-Fi)</span>
+            </div>
+            <span class="more-arrow">›</span>
+          </div>
+
+          <!-- Storage Load / Batch -->
+          <div class="more-item" onclick="openSubPage('batch')">
+            <div class="more-left">
+              <span class="more-icon">📦</span>
+              <span class="more-title" id="txt-menu-batch">भंडारण लोड / बैच (Storage Load)</span>
+            </div>
+            <span class="more-arrow">›</span>
+          </div>
+
+          <!-- Help & FAQ -->
+          <div class="more-item" onclick="openSubPage('help')">
+            <div class="more-left">
+              <span class="more-icon">❓</span>
+              <span class="more-title" id="txt-menu-help">सहायता एवं FAQ (Help & Support)</span>
+            </div>
+            <span class="more-arrow">›</span>
+          </div>
+
+          <!-- Profile -->
+          <div class="more-item" onclick="openSubPage('profile')">
+            <div class="more-left">
+              <span class="more-icon">👨‍🌾</span>
+              <span class="more-title" id="txt-menu-profile">किसान व कोऑपरेटिव प्रोफ़ाइल</span>
+            </div>
+            <span class="more-arrow">›</span>
+          </div>
+
+          <!-- Phone QR Share -->
+          <div class="more-item" onclick="openQrModal()" style="border-left: 4px solid #16a34a; background: #f0fdf4;">
+            <div class="more-left">
+              <span class="more-icon" style="background:#dcfce7;">📱</span>
+              <span class="more-title" id="txt-menu-share" style="color:#15803d; font-weight:800;">फोन पर खोलें (Scan Live QR)</span>
+            </div>
+            <span class="more-arrow" style="color:#15803d;">›</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-PAGE: Energy Flow -->
+      <div id="sub-energy" class="sub-page"></div>
+
+      <!-- SUB-PAGE: Data & Trends Chart -->
+      <div id="sub-data" class="sub-page">
+        <button class="back-btn" onclick="closeSubPage()" id="btn-back-data">← वापस (Back)</button>
+        <div class="section-title" id="txt-data-title">📊 डेटा व रुझान (Data)</div>
+        <div class="section-desc" id="txt-data-desc">सरल तापमान इतिहास बिना किसी जटिल चार्ट के</div>
+
+        <div class="filter-tabs" style="margin-top:12px;">
+          <button class="filter-btn active" onclick="setChartFilter('today', this)" id="btn-filter-today">आज (Today)</button>
+          <button class="filter-btn" onclick="setChartFilter('yesterday', this)" id="btn-filter-yest">कल (Yesterday)</button>
+          <button class="filter-btn" onclick="setChartFilter('week', this)" id="btn-filter-week">पिछले 7 दिन</button>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title" id="txt-temp-history-title">🌡️ तापमान इतिहास</div>
+              <span style="font-size:12px; color:#475569;" id="txt-temp-current-reading">वर्तमान: <b id="chart-cur-temp">11.8°C</b></span>
+            </div>
+            <span class="safe-zone-tag" id="txt-safe-band">सुरक्षित रेंज: 10–13°C</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="tempChart" class="chart-canvas"></canvas>
+          </div>
+          <div class="chart-summary-box" id="txt-chart-summary">
+            ✅ तापमान पिछले सभी घंटों में पूरी तरह से 10°C और 13°C के बीच सुरक्षित बना हुआ है।
+          </div>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card rh-card">
+            <div class="metric-header" id="txt-avg-rh-label">💧 औसत नमी</div>
+            <div class="metric-value-wrap">
+              <span class="metric-value">82</span>
+              <span class="metric-unit">%</span>
+            </div>
+            <div class="metric-target" id="txt-avg-rh-sub">रेंज: 70–90% (अनुकूल)</div>
+          </div>
+          <div class="metric-card battery-card">
+            <div class="metric-header" id="txt-bat-cycle-label">🔋 बैटरी चक्र</div>
+            <div class="metric-value-wrap">
+              <span class="metric-value">76</span>
+              <span class="metric-unit">%</span>
+            </div>
+            <div class="metric-target" id="txt-bat-cycle-sub">रात के बैकअप हेतु पर्याप्त</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-PAGE: System Health (8 Components) -->
+      <div id="sub-health" class="sub-page"></div>
+
+      <!-- SUB-PAGE: Cooling Details -->
+      <div id="sub-cooling" class="sub-page"></div>
+
+      <!-- SUB-PAGE: Storage Batch -->
+      <div id="sub-batch" class="sub-page"></div>
+
+      <!-- SUB-PAGE: Connectivity -->
+      <div id="sub-connectivity" class="sub-page"></div>
+
+      <!-- SUB-PAGE: Maintenance -->
+      <div id="sub-maintenance" class="sub-page"></div>
+
+      <!-- SUB-PAGE: Help & FAQs -->
+      <div id="sub-help" class="sub-page"></div>
+
+      <!-- SUB-PAGE: Farmer Profile -->
+      <div id="sub-profile" class="sub-page"></div>
+
+    </section>
+
+  </main>
+
+  <!-- ================= CROP CONFIRMATION MODAL ================= -->
+  <div id="cropModal" class="modal-overlay" onclick="closeCropModal()">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-crop-title">🍅 टमाटर प्रोफ़ाइल</div>
+        <span style="font-size:22px; cursor:pointer;" onclick="closeCropModal()">✕</span>
+      </div>
+      <div class="modal-body" id="modal-crop-desc">
+        क्या आप टमाटर को इस स्टोरेज प्रोफ़ाइल में रखना चाहते हैं? सिस्टम 10–13°C तापमान बनाए रखना शुरू करेगा।
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-crop-cancel" onclick="closeCropModal()">रद्द करें</button>
+        <button class="btn-primary" id="btn-crop-confirm" onclick="confirmCropSelection()">हाँ, शुरू करें</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ADD STORAGE UNIT MODAL ================= -->
+  <div id="addUnitModal" class="modal-overlay" onclick="closeAddUnitModal()">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title" id="txt-modal-add-title">📦 नई कोल्ड स्टोरेज यूनिट जोड़ें</div>
+        <span style="font-size:22px; cursor:pointer;" onclick="closeAddUnitModal()">✕</span>
+      </div>
+      <div class="modal-body" style="margin-bottom:12px;">
+        <!-- Option 1: Manual ID -->
+        <b style="font-size:13px; color:#14532d;" id="txt-opt-manual">विकल्प 1: स्टोरेज विवरण दर्ज करें</b>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px; margin-bottom:14px;">
+          <input type="text" id="newUnitId" placeholder="यूनिट आईडी (जैसे INNO-011)" class="search-input" style="font-weight:700;">
+          <input type="text" id="newUnitFarmer" placeholder="किसान का नाम (जैसे प्यनस्खें रॉय)" class="search-input">
+          <input type="text" id="newUnitLocation" placeholder="गाँव / संकलन केंद्र (जैसे मैरांग क्लस्टर)" class="search-input">
+          <select id="newUnitCrop" class="search-input" style="font-weight:600;">
+            <option value="tomato">🍅 टमाटर (10–13°C)</option>
+            <option value="chilli">🌶️ हरी मिर्च (8–10°C)</option>
+            <option value="beans">🫘 फ्रेंच बीन्स (7–10°C)</option>
+          </select>
+        </div>
+
+        <div style="text-align:center; margin:10px 0; color:#94a3b8; font-weight:700; font-size:12px;">— अथवा (OR) —</div>
+
+        <!-- Option 2: Simulate QR Code Scan -->
+        <b style="font-size:13px; color:#14532d;" id="txt-opt-qr">विकल्प 2: यूनिट का क्यूआर कोड स्कैन करें</b>
+        <div style="margin-top:6px;">
+          <button type="button" class="btn-secondary" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px; background:#f0fdf4; border-color:#86efac; color:#15803d; font-weight:800;" onclick="simulateQrScan()" id="btn-sim-qr-scan">
+            <span>📷</span>
+            <span id="txt-btn-sim-qr">क्यूआर कोड स्कैन करें (Scan Unit QR)</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-cancel-add-unit" onclick="closeAddUnitModal()">रद्द करें</button>
+        <button class="btn-primary" id="btn-submit-add-unit" onclick="submitAddUnit()">मेरी यूनिट्स में जोड़ें</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= QUICK UNIT SWITCHER MODAL ================= -->
+  <div id="unitSwitchModal" class="modal-overlay" onclick="closeUnitSwitchModal()">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title" id="txt-modal-switch-title">📦 स्टोरेज यूनिट चुनें (Switch Unit)</div>
+        <span style="font-size:22px; cursor:pointer;" onclick="closeUnitSwitchModal()">✕</span>
+      </div>
+      <div id="unit-switcher-list" style="max-height:60vh; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:12px;">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+      <button class="btn-secondary" style="width:100%;" onclick="closeUnitSwitchModal()">बंद करें (Close)</button>
+    </div>
+  </div>
+
+  <!-- ================= PHONE QR SCAN MODAL ================= -->
+  <div id="qrModal" class="modal-overlay" onclick="closeQrModal()">
+    <div class="modal-sheet" style="text-align:center; padding: 22px 18px;" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <b style="font-size:16px;" id="txt-qr-title">📱 फोन पर कैसे खोलें (Scan QR)</b>
+        <span style="font-size:22px; cursor:pointer;" onclick="closeQrModal()">✕</span>
+      </div>
+      <div style="background:#ffffff; padding:10px; border-radius:12px; display:inline-block; border:1px solid #e2e8f0; margin-bottom:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+        <img id="qr-modal-img" src="phone_qr.png" alt="Phone QR Code" style="width:200px; height:200px; display:block; border-radius:8px;">
+      </div>
+      <div id="txt-qr-body" style="font-size:13px; color:#475569; line-height:1.6; text-align:left;">
+        1. किसी भी फोन का <b>कैमरा या Google Lens</b> खोलकर यह QR कोड स्कैन करें।<br>
+        2. या सीधे किसी भी ब्राउज़र में यह लिंक खोलें:<br>
+        <div style="text-align:center; margin-top:8px;">
+          <code style="background:#f1f5f9; padding:6px 12px; border-radius:6px; font-size:13px; font-weight:bold; color:#15803d; border:1px solid #cbd5e1; display:inline-block; word-break:break-all;">https://innopath-cold-storage.vercel.app</code>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-qr-gotit" style="margin-top:14px; width:100%;" onclick="closeQrModal()">समझ गया (Got It)</button>
+    </div>
+  </div>
+
+  <!-- ================= FIXED BOTTOM NAVIGATION ================= -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchTab('home')" id="nav-home">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label" id="lbl-nav-home">मुख्य</span>
+    </button>
+
+    <button class="nav-item" onclick="switchTab('units')" id="nav-units">
+      <span class="nav-icon">📦</span>
+      <span class="nav-label" id="lbl-nav-units">माई यूनिट्स</span>
+    </button>
+
+    <button class="nav-item" onclick="switchTab('crops')" id="nav-crops">
+      <span class="nav-icon">🌾</span>
+      <span class="nav-label" id="lbl-nav-crops">फसल</span>
+    </button>
+
+    <button class="nav-item" onclick="switchTab('alerts')" id="nav-alerts">
+      <span class="nav-icon">🔔</span>
+      <span class="nav-label" id="lbl-nav-alerts">अलर्ट</span>
+      <span class="nav-badge" id="alerts-badge">3</span>
+    </button>
+
+    <button class="nav-item" onclick="switchTab('more')" id="nav-more">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label" id="lbl-nav-more">अधिक</span>
+    </button>
+  </nav>
+
+</div>
+
+<script src="translations.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
